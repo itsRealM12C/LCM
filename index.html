@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Launch CheeringTV</title>
+  <script>
+    function launchApp() {
+      if (window.webOS && webOS.service) {
+        webOS.service.request("luna://com.webos.service.applicationManager", {
+          method: "launch",
+          parameters: {
+            id: "com.webos.app.cheeringtv",
+            params: {
+              key: "value"
+            }
+          },
+          onSuccess: function (res) {
+            console.log("App launched successfully", res);
+          },
+          onFailure: function (err) {
+            console.error("Failed to launch app", err);
+          }
+        });
+      } else {
+        alert("webOS.service.request not available in this browser.");
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById("launchBtn");
+      btn.addEventListener('click', launchApp);
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          launchApp();
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <button id="launchBtn">Launch CheeringTV</button>
+</body>
+</html>
