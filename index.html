@@ -2,7 +2,27 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Launch CheeringTV</title>
+  <title>CheeringTV Launcher</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #444;
+      color: #fff;
+      text-align: center;
+      padding-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+    }
+  </style>
   <script>
     function isAllowedPlatform() {
       const ua = navigator.userAgent.toLowerCase();
@@ -21,9 +41,7 @@
           method: "launch",
           parameters: {
             id: "com.webos.app.cheeringtv",
-            params: {
-              key: "value"
-            }
+            params: { key: "value" }
           },
           onSuccess: function (res) {
             console.log("App launched successfully", res);
@@ -37,12 +55,46 @@
       }
     }
 
+    function sendToast() {
+      if (!isAllowedPlatform()) {
+        alert("This script is only allowed on webOS or Linux.");
+        return;
+      }
+
+      const msg = document.getElementById("toastMsg").value;
+      if (!msg) return;
+
+      if (window.webOS && webOS.service) {
+        webOS.service.request("luna://com.webos.notification", {
+          method: "createToast",
+          parameters: {
+            message: msg,
+            iconUrl: "/usr/palm/notificationmgr/images/toast-notification-icon.png"
+          },
+          onSuccess: function (res) {
+            console.log("Toast shown successfully", res);
+          },
+          onFailure: function (err) {
+            console.error("Failed to show toast", err);
+          }
+        });
+      } else {
+        alert("webOS.service.request is not available in this browser.");
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById("launchBtn");
-      btn.addEventListener('click', launchApp);
+      document.getElementById("launchBtn").addEventListener('click', launchApp);
+      document.getElementById("toastBtn").addEventListener('click', sendToast);
+
+      document.getElementById("toastMsg").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          sendToast();
+        }
+      });
 
       document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && document.activeElement.tagName !== "INPUT") {
           launchApp();
         }
       });
@@ -52,5 +104,10 @@
 <body>
   <h1>CheeringTV Launcher</h1>
   <button id="launchBtn">Launch CheeringTV</button>
+
+  <div style="margin-top:40px;">
+    <input type="text" id="toastMsg" placeholder="Enter toast message" />
+    <button id="toastBtn">Send Toast</button>
+  </div>
 </body>
 </html>
