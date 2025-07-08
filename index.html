@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Launch CheeringTV</title>
   <script>
+    function isAllowedPlatform() {
+      const ua = navigator.userAgent.toLowerCase();
+      return (ua.includes('webos') || ua.includes('linux')) &&
+             !ua.includes('windows') && !ua.includes('macintosh');
+    }
+
     function launchApp() {
+      if (!isAllowedPlatform()) {
+        alert("This script is only allowed on webOS or Linux.");
+        return;
+      }
+
       if (window.webOS && webOS.service) {
         webOS.service.request("luna://com.webos.service.applicationManager", {
           method: "launch",
@@ -21,7 +33,7 @@
           }
         });
       } else {
-        alert("webOS.service.request not available in this browser.");
+        alert("webOS.service.request is not available in this browser.");
       }
     }
 
@@ -38,6 +50,7 @@
   </script>
 </head>
 <body>
+  <h1>CheeringTV Launcher</h1>
   <button id="launchBtn">Launch CheeringTV</button>
 </body>
 </html>
